@@ -1,0 +1,45 @@
+import numpy as np
+class QLearningLinearFA:
+    def __init__(self, num_features, num_actions, learning_rate=0.1, discount_factor=0.9, epsilon=0.1):
+        self.num_features = num_features
+        self.num_actions = num_actions
+        self.learning_rate = learning_rate
+        self.discount_factor = discount_factor
+        self.epsilon = epsilon
+        self.weights = np.zeros((num_actions, num_features))
+    def select_action(self, state):
+        if np.random.rand() < self.epsilon:
+            return np.random.choice(self.num_actions)  # Random action
+        else:
+            return np.argmax(np.dot(self.weights, state))  # Greedy action
+    def update_weights(self, state, action, reward, next_state):
+        target = reward + self.discount_factor * np.max(np.dot(self.weights, next_state))
+        predicted = np.dot(self.weights[action], state)
+        error = target - predicted
+        self.weights[action] += self.learning_rate * error * state
+num_features = 4  # Number of features representing the state
+num_actions = 3  # Number of possible actions
+# Initialize Q-learning with linear function approximation
+ql = QLearningLinearFA(num_features, num_actions)
+
+# Example training loop
+num_episodes = 1000
+for episode in range(num_episodes):
+    # Simulate environment, get initial state
+    state = np.random.rand(num_features)
+    done = False
+    total_reward = 0
+    while not done:
+        # Select action using Q-learning policy
+        action = ql.select_action(state)
+        # Simulate environment, get reward and next state
+        next_state = np.random.rand(num_features)
+        reward = np.random.randn()  # Replace with actual reward from environment
+        done = np.random.rand() < 0.1  # Example termination condition
+        # Update Q-function approximation
+        ql.update_weights(state, action, reward, next_state)
+        # Update current state
+        state = next_state
+        # Accumulate total reward
+        total_reward += reward
+    print("Episode:", episode, "Total Reward:", total_reward)
